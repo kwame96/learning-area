@@ -12,7 +12,8 @@ const JobDetail = {
 
   close() {
     document.getElementById('modal').classList.add('hidden');
-    Jobs.load();
+    if (App.tab === 'discover') Jobs.loadDiscover();
+    else if (App.tab === 'tracker') Jobs.loadTracker();
   },
 
   chips(arr, miss) {
@@ -52,11 +53,12 @@ const JobDetail = {
         </select>
       </label>
 
-      <button id="d-tailor" class="primary">${tailored ? 'Re-tailor' : 'Tailor with Claude'}</button>
+      <button id="d-tailor" class="btn primary">${tailored ? '↻ Re-generate' : '⚡ Generate with Claude'}</button>
       ${
         tailored
-          ? `<a href="/api/jobs/${j.id}/export?doc=resume" target="_blank"><button>Resume PDF</button></a>
-             <a href="/api/jobs/${j.id}/export?doc=cover" target="_blank"><button>Cover letter PDF</button></a>`
+          ? `<a class="btn" href="/api/jobs/${j.id}/export?doc=resume" target="_blank">Resume PDF</a>
+             <a class="btn" href="/api/jobs/${j.id}/export?doc=cover" target="_blank">Cover letter PDF</a>
+             ${j.jobUrl ? `<a class="btn primary" href="${Jobs.esc(j.jobUrl)}" target="_blank" rel="noopener">Open application ↗</a>` : ''}`
           : ''
       }
       <span id="d-status-msg" class="status"></span>

@@ -17,6 +17,7 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api/profile', require('./src/routes/profile.routes'));
 app.use('/api/jobs', require('./src/routes/jobs.routes'));
+app.use('/api', require('./src/routes/sources.routes'));
 app.use('/api', require('./src/routes/tailor.routes'));
 app.use('/api', require('./src/routes/export.routes'));
 

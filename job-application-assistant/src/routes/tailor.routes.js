@@ -66,4 +66,33 @@ router.post('/jobs/tailor-pending', async (req, res, next) => {
   }
 });
 
+// Batch: generate tailored docs for an explicit list of selected job ids.
+// Sequential pacing keeps the cached prompt prefix warm across the run.
+router.post('/jobs/tailor-batch', async (req, res, next) => {
+  try {
+    const ids = Array.isArray(req.body && req.body.ids) ? req.body.ids : [];
+    if (!ids.length) {
+      throw new ValidationError('Provide an array of job ids to tailor');
+    }
+    const profile = loadProfileOrThrow();
+    const results = [];
+    for (const rawId of ids) {
+      const job = jobRepo.getJob(Number(rawId));
+      if (!job) {
+        results.push({ id: rawId, ok: false, error: 'not found' });
+        continue;
+      }
+      try {
+        const updated = await tailorOne(job, profile);
+        results.push({ id: job.id, ok: true, atsScore: updated.atsScore });
+      } catch (e) {
+        results.push({ id: job.id, ok: false, error: e.message });
+      }
+    }
+    res.json({ processed: results.length, results });
+  } catch (e) {
+    next(e);
+  }
+});
+
 module.exports = router;

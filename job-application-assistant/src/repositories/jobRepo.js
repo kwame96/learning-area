@@ -142,6 +142,26 @@ function saveTailorResult(id, result) {
   return getJob(id);
 }
 
+// Insert many jobs, skipping ones whose jobUrl already exists.
+function createJobsDeduped(list) {
+  const created = [];
+  let skipped = 0;
+  const findByUrl = getDb().prepare(
+    "SELECT id FROM jobs WHERE job_url = ? AND job_url <> ''"
+  );
+  const tx = getDb().transaction((rows) => {
+    for (const r of rows) {
+      if (r.jobUrl && findByUrl.get(r.jobUrl)) {
+        skipped++;
+        continue;
+      }
+      created.push(createJob(r));
+    }
+  });
+  tx(list);
+  return { created, skipped };
+}
+
 function deleteJob(id) {
   return getDb().prepare('DELETE FROM jobs WHERE id = ?').run(id).changes > 0;
 }
@@ -158,6 +178,7 @@ module.exports = {
   listJobs,
   getJob,
   createJob,
+  createJobsDeduped,
   updateJob,
   saveTailorResult,
   deleteJob,

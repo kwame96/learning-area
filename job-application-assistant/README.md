@@ -21,15 +21,27 @@ Open http://localhost:3000
 
 ## Workflow
 
-1. **Profile tab** — fill in your real experience/skills and upload your
-   resume (PDF or DOCX), or paste the text if it is a scanned image.
-2. **Jobs tab** — bulk-paste many job descriptions (separate each with a line
-   containing only `---`; optional first line `Company - Role`), or add one.
-3. Open a job and click **Tailor** — Claude reframes your *genuine*
-   experience to the job, returns an ATS score, matched keywords, and
-   genuine missing keywords (gaps you should not fake).
-4. Export the tailored resume / cover letter as PDF, review every line, then
-   submit on the company's site and update the status.
+1. **Setup** — fill in your real experience/skills and upload your resume
+   (PDF or DOCX), or paste the text if it is a scanned image.
+2. **Discover** — pull roles from a sanctioned job source, **import** a
+   JSON/CSV list (always works offline), or add one manually. Duplicates
+   (same URL) are skipped automatically.
+3. **Check the jobs you want** and hit **Generate for selected** — Claude
+   produces a tailored resume + cover letter for the whole batch, each with
+   an ATS score, matched keywords, and genuine missing keywords (gaps you
+   should not fake).
+4. **Tracker** — review every generated line, export PDFs, open the
+   application, submit it yourself, and update the status.
+
+## What this deliberately does NOT do
+
+- **No scraping of boards that forbid it** (LinkedIn, Indeed, etc.). Only
+  sources that permit programmatic access belong in `src/services/jobSources.js`;
+  everything else goes through Import. Live sources need outbound network —
+  if your environment blocks it, use Import.
+- **No fully-unattended mass submission.** Each board has its own forms,
+  logins and anti-bot defenses; unattended bulk submit gets accounts banned
+  and performs poorly. The batch flow gets you to one reviewed click per job.
 
 ## Notes
 

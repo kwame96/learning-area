@@ -1,28 +1,33 @@
 'use strict';
 
-document.querySelectorAll('.tab').forEach((btn) => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach((b) => b.classList.remove('active'));
+const App = {
+  tab: 'setup',
+  show(tab) {
+    App.tab = tab;
     document
-      .querySelectorAll('.tab-panel')
-      .forEach((p) => p.classList.remove('active'));
-    btn.classList.add('active');
+      .querySelectorAll('.nav-btn')
+      .forEach((b) => b.classList.toggle('active', b.dataset.tab === tab));
     document
-      .getElementById('tab-' + btn.dataset.tab)
-      .classList.add('active');
-    if (btn.dataset.tab === 'jobs') Jobs.load();
-  });
-});
+      .querySelectorAll('.panel')
+      .forEach((p) => p.classList.toggle('active', p.id === 'tab-' + tab));
+    if (tab === 'discover') Jobs.loadDiscover();
+    if (tab === 'tracker') Jobs.loadTracker();
+  },
+};
+
+document.querySelectorAll('.nav-btn').forEach((b) =>
+  b.addEventListener('click', () => App.show(b.dataset.tab))
+);
 
 (async function init() {
   try {
     const h = await api.get('/api/health');
     document.getElementById('health').textContent = h.apiKeyConfigured
-      ? `Claude model: ${h.model} — API key configured.`
-      : 'No ANTHROPIC_API_KEY set — tailoring is disabled until you add it to .env.';
+      ? `● claude ${h.model} — key configured`
+      : '● no ANTHROPIC_API_KEY set — generation disabled until added to .env';
   } catch {
-    document.getElementById('health').textContent = 'Server unreachable.';
+    document.getElementById('health').textContent = '● server unreachable';
   }
   await Profile.load();
-  await Jobs.load();
+  await Jobs.loadSources();
 })();

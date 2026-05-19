@@ -23,7 +23,12 @@ Two distinct things live here:
   `multer` (2.x), `pdfjs-dist` (PDF text), `mammoth` (DOCX), `pdfkit`
   (PDF export), `dotenv`.
 - Layout: `routes/` (HTTP) → `repositories/` (DB) and `services/`
-  (resume parsing, Claude, PDF). `lib/` holds validation and prompts.
+  (resume parsing, Claude, PDF, job sources). `lib/` holds validation and
+  prompts. Distinct dark-editorial UI in `public/` (vanilla, no build step).
+- Job sourcing is a pluggable adapter layer (`services/jobSources.js`):
+  only programmatically-sanctioned sources, plus an always-offline
+  JSON/CSV import. Never add scrapers for boards whose terms forbid it.
+  Submission is never fully automated — the user reviews and submits.
 
 ## Run & test
 

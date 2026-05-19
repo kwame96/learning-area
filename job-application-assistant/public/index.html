@@ -3,87 +3,127 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Job Application Assistant</title>
+<title>Tailorbird — apply smarter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="stylesheet" href="/css/styles.css" />
 </head>
 <body>
-<header>
-  <h1>Job Application Assistant</h1>
-  <p class="sub">Tailors your <strong>genuine</strong> resume to each job. Review every line before you submit — this tool never submits for you and never invents experience.</p>
-  <nav>
-    <button data-tab="profile" class="tab active">Profile</button>
-    <button data-tab="jobs" class="tab">Jobs</button>
+<div class="grain" aria-hidden="true"></div>
+
+<header class="top">
+  <div class="brand">
+    <span class="mark">✦</span>
+    <span class="word">tailorbird</span>
+    <span class="tag">apply smarter, not harder</span>
+  </div>
+  <nav class="nav">
+    <button data-tab="setup" class="nav-btn active">01 · Setup</button>
+    <button data-tab="discover" class="nav-btn">02 · Discover</button>
+    <button data-tab="tracker" class="nav-btn">03 · Tracker</button>
   </nav>
-  <p id="health" class="health"></p>
+  <span id="health" class="health"></span>
 </header>
 
 <main>
-  <section id="tab-profile" class="tab-panel active">
-    <h2>Master profile</h2>
-    <p class="hint">This is the only source of truth for tailoring. Only real, verifiable experience.</p>
-    <div class="grid">
-      <label>Full name <input id="p-name" type="text" /></label>
-      <label>Email <input id="p-email" type="email" /></label>
-      <label>Phone <input id="p-phone" type="text" /></label>
-      <label>Location <input id="p-location" type="text" /></label>
+  <!-- SETUP -->
+  <section id="tab-setup" class="panel active">
+    <div class="panel-head">
+      <h1>Your <em>real</em> story, once.</h1>
+      <p>Everything generated is reframed from this. Tailorbird never invents experience — that is a feature, not a limit.</p>
     </div>
-    <label>Links (one per line)
-      <textarea id="p-links" rows="3" placeholder="https://linkedin.com/in/you&#10;https://github.com/you"></textarea>
-    </label>
-    <label>Master profile (structured, real experience &amp; skills)
-      <textarea id="p-master" rows="12" placeholder="Summary, skills, experience with companies/titles/dates/bullets, education, certifications, projects. Plain text or JSON-ish — be thorough and accurate."></textarea>
-    </label>
-    <button id="p-save" class="primary">Save profile</button>
-    <span id="p-status" class="status"></span>
-
-    <h3>Resume file</h3>
-    <p class="hint">Upload a PDF or DOCX, or paste text if it is a scanned image.</p>
-    <input id="p-resume-file" type="file" accept=".pdf,.docx" />
-    <button id="p-resume-upload">Upload &amp; parse</button>
-    <details>
-      <summary>Paste resume text manually</summary>
-      <textarea id="p-resume-text" rows="8"></textarea>
-      <button id="p-resume-text-save">Save pasted text</button>
-    </details>
-    <p id="p-resume-status" class="status"></p>
+    <div class="cols">
+      <div class="card">
+        <h2>Master profile</h2>
+        <div class="field-grid">
+          <label>Full name <input id="p-name" /></label>
+          <label>Email <input id="p-email" type="email" /></label>
+          <label>Phone <input id="p-phone" /></label>
+          <label>Location <input id="p-location" /></label>
+        </div>
+        <label>Links — one per line
+          <textarea id="p-links" rows="2"></textarea></label>
+        <label>Experience &amp; skills (real, verifiable)
+          <textarea id="p-master" rows="9" placeholder="Summary, skills, roles with company / title / dates / bullets, education, projects."></textarea></label>
+        <button id="p-save" class="btn primary">Save profile</button>
+        <span id="p-status" class="status"></span>
+      </div>
+      <div class="card">
+        <h2>Resume file</h2>
+        <p class="muted">PDF or DOCX. Scanned image? Paste the text instead.</p>
+        <label class="drop">
+          <input id="p-resume-file" type="file" accept=".pdf,.docx" />
+          <span>Choose .pdf / .docx</span>
+        </label>
+        <button id="p-resume-upload" class="btn">Upload &amp; parse</button>
+        <details>
+          <summary>Paste resume text</summary>
+          <textarea id="p-resume-text" rows="6"></textarea>
+          <button id="p-resume-text-save" class="btn">Save text</button>
+        </details>
+        <p id="p-resume-status" class="status"></p>
+      </div>
+    </div>
   </section>
 
-  <section id="tab-jobs" class="tab-panel">
-    <h2>Add jobs</h2>
-    <details open>
-      <summary>Bulk add (paste many job descriptions)</summary>
-      <p class="hint">Separate each job with a line containing only the delimiter. Optional first line <code>Company - Role</code>.</p>
-      <label>Delimiter <input id="b-delim" type="text" value="---" /></label>
-      <textarea id="b-text" rows="8" placeholder="Acme Inc - Backend Engineer&#10;Job description text...&#10;---&#10;Globex - Data Analyst&#10;Job description text..."></textarea>
-      <button id="b-add" class="primary">Bulk add</button>
-    </details>
-    <details>
-      <summary>Add one job</summary>
-      <div class="grid">
-        <label>Company <input id="s-company" type="text" /></label>
-        <label>Role <input id="s-role" type="text" /></label>
-        <label>Job URL <input id="s-url" type="text" /></label>
-        <label>Source <input id="s-source" type="text" /></label>
+  <!-- DISCOVER -->
+  <section id="tab-discover" class="panel">
+    <div class="panel-head">
+      <h1>Find roles. <em>Check</em> the ones you want.</h1>
+      <p>Pull from sanctioned job APIs, or import a list. Then select and generate tailored docs for the whole batch at once.</p>
+    </div>
+    <div class="card toolbar-card">
+      <div class="row">
+        <select id="src-select"></select>
+        <input id="src-query" placeholder="keyword (optional)" />
+        <button id="src-fetch" class="btn">Pull jobs</button>
       </div>
-      <label>Description <textarea id="s-desc" rows="6"></textarea></label>
-      <button id="s-add">Add job</button>
-    </details>
+      <details>
+        <summary>Import instead (JSON array or CSV — always works offline)</summary>
+        <textarea id="imp-text" rows="5" placeholder='[{"company":"Acme","role":"Backend Eng","jobUrl":"https://...","description":"..."}]'></textarea>
+        <button id="imp-go" class="btn">Import</button>
+      </details>
+      <details>
+        <summary>Add one manually</summary>
+        <div class="field-grid">
+          <label>Company <input id="s-company" /></label>
+          <label>Role <input id="s-role" /></label>
+          <label>URL <input id="s-url" /></label>
+          <label>Source <input id="s-source" /></label>
+        </div>
+        <label>Description <textarea id="s-desc" rows="4"></textarea></label>
+        <button id="s-add" class="btn">Add</button>
+      </details>
+      <p id="src-status" class="status"></p>
+    </div>
 
-    <h2>Tracker</h2>
-    <div class="toolbar">
+    <div class="batch-bar">
+      <label class="chk"><input type="checkbox" id="sel-all" /> select all</label>
+      <span id="sel-count" class="muted">0 selected</span>
+      <button id="gen-selected" class="btn primary">⚡ Generate for selected</button>
+      <span id="gen-status" class="status"></span>
+    </div>
+    <div id="job-grid" class="grid"></div>
+  </section>
+
+  <!-- TRACKER -->
+  <section id="tab-tracker" class="panel">
+    <div class="panel-head">
+      <h1>Pipeline.</h1>
+      <p>Review every generated line before you submit. Tailorbird prepares — you press send.</p>
+    </div>
+    <div class="row">
       <select id="f-status">
-        <option value="">All statuses</option>
+        <option value="">All</option>
         <option value="to_apply">To apply</option>
         <option value="applied">Applied</option>
         <option value="interviewing">Interviewing</option>
         <option value="rejected">Rejected</option>
         <option value="offer">Offer</option>
       </select>
-      <input id="f-search" type="text" placeholder="Search company / role / text" />
-      <button id="f-refresh">Refresh</button>
-      <button id="tailor-pending">Tailor all pending</button>
+      <input id="f-search" placeholder="search" />
+      <button id="f-refresh" class="btn">Refresh</button>
     </div>
-    <div id="jobs-list"></div>
+    <div id="track-grid" class="grid"></div>
   </section>
 </main>
 
