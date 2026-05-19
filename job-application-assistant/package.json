@@ -1,0 +1,25 @@
+{
+  "name": "job-application-assistant",
+  "version": "1.0.0",
+  "description": "Local tool that tailors a genuine resume to many job descriptions via the Claude API, scores ATS keyword match, exports PDFs, and tracks applications. Does not auto-submit and does not fabricate experience.",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.1",
+    "better-sqlite3": "^11.3.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "mammoth": "^1.8.0",
+    "multer": "^2.1.1",
+    "pdfjs-dist": "^4.10.38",
+    "pdfkit": "^0.15.0"
+  }
+}
