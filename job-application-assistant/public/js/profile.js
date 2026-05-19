@@ -1,8 +1,35 @@
 'use strict';
 
 const Profile = {
+  state: { profile: false, resume: false },
+
+  refreshSteps() {
+    const s = Profile.state;
+    const set = (id, ok, label) => {
+      const el = document.getElementById(id);
+      el.textContent = (ok ? '● ' : '○ ') + label;
+      el.classList.toggle('done', ok);
+    };
+    set('step-profile', s.profile, 'Profile');
+    set('step-resume', s.resume, 'Resume');
+    const ready = s.profile || s.resume;
+    const btn = document.getElementById('go-discover');
+    btn.disabled = !ready;
+    document.getElementById('setup-msg').textContent = ready
+      ? 'Setup looks good — you can move on (add both for best results).'
+      : 'Save your profile and add a resume to continue.';
+  },
+
   async load() {
     const p = await api.get('/api/profile');
+    Profile.state.profile = Boolean(
+      (p.fullName && p.fullName.trim()) ||
+        (typeof p.masterProfile === 'string'
+          ? p.masterProfile.trim()
+          : Object.keys(p.masterProfile || {}).length)
+    );
+    Profile.state.resume = Boolean(p.resumeText && p.resumeText.length);
+    Profile.refreshSteps();
     document.getElementById('p-name').value = p.fullName || '';
     document.getElementById('p-email').value = p.email || '';
     document.getElementById('p-phone').value = p.phone || '';
@@ -44,6 +71,8 @@ const Profile = {
         masterProfile: Profile.masterValue(),
       });
       setStatus(status, 'Saved.', true);
+      Profile.state.profile = true;
+      Profile.refreshSteps();
     } catch (e) {
       setStatus(status, e.message, false);
     }
@@ -61,6 +90,8 @@ const Profile = {
     try {
       const r = await api.upload('/api/profile/resume', fd);
       setStatus(status, `Parsed ${r.charCount} characters.`, true);
+      Profile.state.resume = true;
+      Profile.refreshSteps();
     } catch (e) {
       setStatus(status, e.message, false);
     }
@@ -73,6 +104,8 @@ const Profile = {
         resumeText: document.getElementById('p-resume-text').value,
       });
       setStatus(status, `Saved ${r.charCount} characters.`, true);
+      Profile.state.resume = true;
+      Profile.refreshSteps();
     } catch (e) {
       setStatus(status, e.message, false);
     }

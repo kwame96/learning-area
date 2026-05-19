@@ -56,6 +56,8 @@ function init() {
     );
   `);
 
+  migrateJobFacets(db);
+
   const row = db.prepare('SELECT id FROM profile WHERE id = 1').get();
   if (!row) {
     db.prepare(
@@ -65,6 +67,36 @@ function init() {
   }
 
   return db;
+}
+
+// Add classification columns and backfill existing rows. SQLite has no
+// "ADD COLUMN IF NOT EXISTS", so check the table shape first.
+function migrateJobFacets(database) {
+  const cols = database
+    .prepare('PRAGMA table_info(jobs)')
+    .all()
+    .map((c) => c.name);
+  const adds = [];
+  if (!cols.includes('experience_level')) adds.push('experience_level TEXT');
+  if (!cols.includes('category')) adds.push('category TEXT');
+  if (!cols.includes('job_type')) adds.push('job_type TEXT');
+  for (const def of adds) database.exec(`ALTER TABLE jobs ADD COLUMN ${def}`);
+
+  if (!adds.length) return;
+  const { classify } = require('./services/jobClassify');
+  const rows = database
+    .prepare('SELECT id, role, description_text FROM jobs')
+    .all();
+  const upd = database.prepare(
+    'UPDATE jobs SET experience_level=@e, category=@c, job_type=@t WHERE id=@id'
+  );
+  const tx = database.transaction((list) => {
+    for (const r of list) {
+      const f = classify({ role: r.role, descriptionText: r.description_text });
+      upd.run({ id: r.id, e: f.experienceLevel, c: f.category, t: f.jobType });
+    }
+  });
+  tx(rows);
 }
 
 function getDb() {

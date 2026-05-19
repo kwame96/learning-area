@@ -18,6 +18,9 @@ const App = {
 document.querySelectorAll('.nav-btn').forEach((b) =>
   b.addEventListener('click', () => App.show(b.dataset.tab))
 );
+document
+  .getElementById('go-discover')
+  .addEventListener('click', () => App.show('discover'));
 
 (async function init() {
   try {
@@ -30,4 +33,5 @@ document.querySelectorAll('.nav-btn').forEach((b) =>
   }
   await Profile.load();
   await Jobs.loadSources();
+  await Jobs.loadFacets();
 })();

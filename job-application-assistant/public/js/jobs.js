@@ -1,7 +1,70 @@
 'use strict';
 
+const LABELS = {
+  exp: {
+    entry: 'Entry level',
+    mid: 'Mid level',
+    senior: 'Senior',
+    lead: 'Lead / Principal',
+  },
+  cat: {
+    security: 'Security',
+    software: 'Software / Eng',
+    data: 'Data / ML',
+    it_support: 'IT Support',
+    design: 'Design',
+    product: 'Product',
+    marketing: 'Marketing',
+    sales: 'Sales',
+    finance: 'Finance',
+    operations: 'Operations',
+    hr: 'HR / Recruiting',
+    healthcare: 'Healthcare',
+    customer: 'Customer Support',
+    other: 'Other',
+  },
+  type: {
+    full_time: 'Full-time',
+    part_time: 'Part-time',
+    contract: 'Contract',
+    internship: 'Internship',
+    temporary: 'Temporary',
+  },
+};
+const pretty = (group, v) => (LABELS[group] && LABELS[group][v]) || v;
+
 const Jobs = {
   selected: new Set(),
+
+  filters() {
+    return {
+      search: document.getElementById('src-query').value.trim(),
+      experienceLevel: document.getElementById('f-exp').value,
+      category: document.getElementById('f-cat').value,
+      jobType: document.getElementById('f-type').value,
+    };
+  },
+
+  async loadFacets() {
+    let f;
+    try {
+      f = await api.get('/api/job-facets');
+    } catch {
+      return;
+    }
+    const fill = (id, group, vals) => {
+      const el = document.getElementById(id);
+      el.insertAdjacentHTML(
+        'beforeend',
+        vals
+          .map((v) => `<option value="${v}">${pretty(group, v)}</option>`)
+          .join('')
+      );
+    };
+    fill('f-exp', 'exp', f.experienceLevels);
+    fill('f-cat', 'cat', f.categories);
+    fill('f-type', 'type', f.jobTypes);
+  },
 
   esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"]/g, (c) =>
@@ -36,10 +99,18 @@ const Jobs = {
     try {
       const r = await api.post('/api/jobs/from-source', {
         source: document.getElementById('src-select').value,
-        query: document.getElementById('src-query').value.trim(),
-        limit: 60,
+        ...Jobs.filters(),
+        query: Jobs.filters().search,
+        limit: 200,
       });
-      setStatus(st, `Added ${r.added}, skipped ${r.skipped} duplicate(s).`, true);
+      setStatus(
+        st,
+        `Added ${r.added}, skipped ${r.skipped} duplicate(s).` +
+          (r.added === 0
+            ? ' Try a broader search or "All sources".'
+            : ''),
+        true
+      );
       Jobs.loadDiscover();
     } catch (e) {
       setStatus(st, e.message, false);
@@ -96,6 +167,11 @@ const Jobs = {
         }
       </div>
       <div class="meta">
+        <span class="tagb">${pretty('exp', j.experienceLevel)}</span>
+        <span class="tagb">${pretty('cat', j.category)}</span>
+        <span class="tagb">${pretty('type', j.jobType)}</span>
+      </div>
+      <div class="meta">
         <span>${Jobs.esc(j.source) || 'manual'}</span>
         ${j.lastTailoredAt ? `<span>· tailored ${ats}</span>` : '<span>· not tailored</span>'}
       </div>
@@ -137,13 +213,33 @@ const Jobs = {
   },
 
   async loadDiscover() {
-    const jobs = await api.get('/api/jobs');
+    const f = Jobs.filters();
+    const qs = new URLSearchParams();
+    if (f.search) qs.set('search', f.search);
+    if (f.experienceLevel) qs.set('experienceLevel', f.experienceLevel);
+    if (f.category) qs.set('category', f.category);
+    if (f.jobType) qs.set('jobType', f.jobType);
+    const jobs = await api.get('/api/jobs?' + qs);
     const g = document.getElementById('job-grid');
+    const anyFilter =
+      f.search || f.experienceLevel || f.category || f.jobType;
     g.innerHTML = jobs.length
       ? jobs.map((j) => Jobs.jobCard(j, true)).join('')
-      : '<p class="muted">No jobs yet. Pull from a source or import above.</p>';
+      : `<p class="muted">${
+          anyFilter
+            ? 'No jobs match these filters. Loosen them, or Pull jobs with this search.'
+            : 'No jobs yet. Pull from a source or import above.'
+        }</p>`;
     Jobs.wire(g, true);
     Jobs.refreshCount();
+  },
+
+  clearFilters() {
+    document.getElementById('src-query').value = '';
+    document.getElementById('f-exp').value = '';
+    document.getElementById('f-cat').value = '';
+    document.getElementById('f-type').value = '';
+    Jobs.loadDiscover();
   },
 
   async loadTracker() {
@@ -189,6 +285,11 @@ document.getElementById('src-fetch').addEventListener('click', Jobs.fetchSource)
 document.getElementById('imp-go').addEventListener('click', Jobs.importText);
 document.getElementById('s-add').addEventListener('click', Jobs.singleAdd);
 document.getElementById('gen-selected').addEventListener('click', Jobs.generateSelected);
+document.getElementById('f-apply').addEventListener('click', Jobs.loadDiscover);
+document.getElementById('f-clear').addEventListener('click', Jobs.clearFilters);
+document.getElementById('src-query').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') Jobs.loadDiscover();
+});
 document.getElementById('f-refresh').addEventListener('click', Jobs.loadTracker);
 document.getElementById('f-status').addEventListener('change', Jobs.loadTracker);
 document.getElementById('sel-all').addEventListener('change', (e) => {

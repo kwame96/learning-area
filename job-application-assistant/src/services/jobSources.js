@@ -65,27 +65,67 @@ const ADAPTERS = {
 };
 
 function listSources() {
-  return Object.entries(ADAPTERS).map(([id, a]) => ({ id, label: a.label }));
+  return [{ id: 'all', label: 'All sources (widest results)' }].concat(
+    Object.entries(ADAPTERS).map(([id, a]) => ({ id, label: a.label }))
+  );
+}
+
+const { classify } = require('./jobClassify');
+
+// Filter normalized rows by free text + classified facets so a search
+// returns targeted results (incl. entry-level) instead of whatever the
+// upstream feed happened to list first.
+function applyFilters(rows, opts) {
+  const q = (opts.query || '').trim().toLowerCase();
+  return rows.filter((r) => {
+    if (
+      q &&
+      !`${r.role} ${r.company} ${r.descriptionText}`.toLowerCase().includes(q)
+    )
+      return false;
+    if (opts.experienceLevel || opts.category || opts.jobType) {
+      const f = classify(r);
+      if (opts.experienceLevel && f.experienceLevel !== opts.experienceLevel)
+        return false;
+      if (opts.category && f.category !== opts.category) return false;
+      if (opts.jobType && f.jobType !== opts.jobType) return false;
+    }
+    return true;
+  });
+}
+
+async function fetchOne(sourceId, opts) {
+  const adapter = ADAPTERS[sourceId];
+  const limit = Math.min(Number(opts.limit) || 100, 300);
+  return adapter.fetch({ query: opts.query, limit });
 }
 
 async function fetchFromSource(sourceId, opts = {}) {
-  const adapter = ADAPTERS[sourceId];
-  if (!adapter) {
+  const ids =
+    sourceId === 'all' ? Object.keys(ADAPTERS) : [sourceId];
+  if (sourceId !== 'all' && !ADAPTERS[sourceId]) {
     const e = new Error(`Unknown source "${sourceId}"`);
     e.statusCode = 400;
     throw e;
   }
-  try {
-    const limit = Math.min(Number(opts.limit) || 50, 200);
-    return await adapter.fetch({ query: opts.query, limit });
-  } catch (e) {
+  const settled = await Promise.allSettled(
+    ids.map((id) => fetchOne(id, opts))
+  );
+  const rows = [];
+  const failures = [];
+  settled.forEach((s, i) => {
+    if (s.status === 'fulfilled') rows.push(...s.value);
+    else failures.push(`${ids[i]}: ${s.reason && s.reason.message}`);
+  });
+  if (!rows.length) {
     const err = new Error(
       `Could not reach ${sourceId}. Live sources need outbound network; ` +
-        `if your environment blocks it, use Import instead. (${e.message})`
+        `if your environment blocks it, use Import instead. (${failures.join('; ')})`
     );
     err.statusCode = 502;
     throw err;
   }
+  return applyFilters(rows, opts);
 }
 
 // Always-offline path: parse pasted JSON array or CSV into job inputs.

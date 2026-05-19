@@ -1,6 +1,7 @@
 'use strict';
 
 const { getDb } = require('../db');
+const { classify } = require('../services/jobClassify');
 
 const DEFAULT_CHECKLIST = [
   { label: 'Reviewed tailored resume line-by-line for accuracy', done: false },
@@ -18,6 +19,9 @@ function rowToJob(r) {
     jobUrl: r.job_url || '',
     source: r.source || '',
     descriptionText: r.description_text || '',
+    experienceLevel: r.experience_level || 'mid',
+    category: r.category || 'other',
+    jobType: r.job_type || 'full_time',
     status: r.status,
     dateAdded: r.date_added,
     dateApplied: r.date_applied,
@@ -35,13 +39,25 @@ function rowToJob(r) {
   };
 }
 
-function listJobs({ status, search } = {}) {
+function listJobs({ status, search, experienceLevel, category, jobType } = {}) {
   let sql = 'SELECT * FROM jobs';
   const where = [];
   const params = {};
   if (status) {
     where.push('status = @status');
     params.status = status;
+  }
+  if (experienceLevel) {
+    where.push('experience_level = @exp');
+    params.exp = experienceLevel;
+  }
+  if (category) {
+    where.push('category = @cat');
+    params.cat = category;
+  }
+  if (jobType) {
+    where.push('job_type = @jt');
+    params.jt = jobType;
   }
   if (search) {
     where.push('(company LIKE @q OR role LIKE @q OR description_text LIKE @q)');
@@ -57,10 +73,16 @@ function getJob(id) {
 }
 
 function createJob(job) {
+  const f = classify({
+    role: job.role,
+    descriptionText: job.descriptionText,
+  });
   const info = getDb()
     .prepare(
-      `INSERT INTO jobs (company, role, job_url, source, description_text, status, date_added, checklist_json)
-       VALUES (@company, @role, @jobUrl, @source, @descriptionText, 'to_apply', @dateAdded, @checklist)`
+      `INSERT INTO jobs (company, role, job_url, source, description_text,
+         experience_level, category, job_type, status, date_added, checklist_json)
+       VALUES (@company, @role, @jobUrl, @source, @descriptionText,
+         @exp, @cat, @jt, 'to_apply', @dateAdded, @checklist)`
     )
     .run({
       company: job.company || '',
@@ -68,6 +90,9 @@ function createJob(job) {
       jobUrl: job.jobUrl || '',
       source: job.source || '',
       descriptionText: job.descriptionText,
+      exp: f.experienceLevel,
+      cat: f.category,
+      jt: f.jobType,
       dateAdded: new Date().toISOString(),
       checklist: JSON.stringify(DEFAULT_CHECKLIST),
     });

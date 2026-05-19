@@ -8,11 +8,24 @@ const {
   fetchFromSource,
   parseImport,
 } = require('../services/jobSources');
+const {
+  EXPERIENCE_LEVELS,
+  CATEGORY_VALUES,
+  JOB_TYPE_VALUES,
+} = require('../services/jobClassify');
 
 const router = express.Router();
 
 router.get('/sources', (req, res) => {
   res.json(listSources());
+});
+
+router.get('/job-facets', (req, res) => {
+  res.json({
+    experienceLevels: EXPERIENCE_LEVELS,
+    categories: CATEGORY_VALUES,
+    jobTypes: JOB_TYPE_VALUES,
+  });
 });
 
 function stageRows(rows) {
@@ -31,8 +44,15 @@ function stageRows(rows) {
 
 router.post('/jobs/from-source', async (req, res, next) => {
   try {
-    const { source, query, limit } = req.body || {};
-    const rows = await fetchFromSource(source, { query, limit });
+    const { source, query, limit, experienceLevel, category, jobType } =
+      req.body || {};
+    const rows = await fetchFromSource(source, {
+      query,
+      limit,
+      experienceLevel,
+      category,
+      jobType,
+    });
     res.status(201).json(stageRows(rows));
   } catch (e) {
     next(e);

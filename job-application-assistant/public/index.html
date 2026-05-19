@@ -63,6 +63,15 @@
         <p id="p-resume-status" class="status"></p>
       </div>
     </div>
+
+    <div class="card step-done-card">
+      <div class="steps">
+        <span id="step-profile" class="step">○ Profile</span>
+        <span id="step-resume" class="step">○ Resume</span>
+      </div>
+      <p id="setup-msg" class="muted">Save your profile and add a resume to continue.</p>
+      <button id="go-discover" class="btn primary" disabled>Next: Discover jobs →</button>
+    </div>
   </section>
 
   <!-- DISCOVER -->
@@ -73,9 +82,16 @@
     </div>
     <div class="card toolbar-card">
       <div class="row">
+        <input id="src-query" placeholder="search role, skill or company (e.g. security, junior analyst)" />
+        <select id="f-exp"><option value="">Any level</option></select>
+        <select id="f-cat"><option value="">Any field</option></select>
+        <select id="f-type"><option value="">Any type</option></select>
+      </div>
+      <div class="row">
         <select id="src-select"></select>
-        <input id="src-query" placeholder="keyword (optional)" />
-        <button id="src-fetch" class="btn">Pull jobs</button>
+        <button id="src-fetch" class="btn primary">Pull jobs</button>
+        <button id="f-apply" class="btn">Filter list</button>
+        <button id="f-clear" class="btn">Clear</button>
       </div>
       <details>
         <summary>Import instead (JSON array or CSV — always works offline)</summary>

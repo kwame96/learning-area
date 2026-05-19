@@ -141,6 +141,17 @@ summary:hover{color:var(--ink)}
 h3{font-size:.95rem;letter-spacing:-.01em;margin:1.2rem 0 .5rem}
 a{color:var(--acid)}
 .hint{color:var(--mut);font-size:.85rem;margin:.3rem 0}
+.step-done-card{margin-top:1.2rem;display:flex;align-items:center;
+  gap:1rem;flex-wrap:wrap}
+.steps{display:flex;gap:.6rem}
+.step{font:700 .78rem/1 "Inter",monospace;letter-spacing:.04em;
+  color:var(--mut);border:1px solid var(--line);border-radius:999px;
+  padding:.4rem .7rem}
+.step.done{color:var(--acid);border-color:var(--acid-dim)}
+.step-done-card .muted{flex:1;min-width:180px;margin:0}
+.tagb{display:inline-block;padding:.16rem .5rem;border-radius:6px;
+  background:var(--bg2);border:1px solid var(--line);
+  font:700 .66rem/1.3 "Inter",monospace;color:var(--mut)}
 #d-checklist label{text-transform:none;color:var(--ink);font-weight:400;
   display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem}
 #d-checklist input{width:auto;margin:0;accent-color:var(--acid)}

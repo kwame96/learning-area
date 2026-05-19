@@ -13,9 +13,11 @@ const router = express.Router();
 
 router.get('/', (req, res, next) => {
   try {
-    const { status, search } = req.query;
+    const { status, search, experienceLevel, category, jobType } = req.query;
     if (status) validateStatus(status);
-    res.json(jobRepo.listJobs({ status, search }));
+    res.json(
+      jobRepo.listJobs({ status, search, experienceLevel, category, jobType })
+    );
   } catch (e) {
     next(e);
   }
