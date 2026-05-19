@@ -24,8 +24,11 @@ const config = {
   },
 };
 
+const PLACEHOLDER_KEY = 'sk-ant-your-key-here';
+
 function hasApiKey() {
-  return Boolean(config.anthropicApiKey && config.anthropicApiKey.trim());
+  const k = (config.anthropicApiKey || '').trim();
+  return Boolean(k) && k !== PLACEHOLDER_KEY;
 }
 
 module.exports = { config, hasApiKey };
