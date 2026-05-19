@@ -126,7 +126,52 @@ async function groqComplete(systemText, messages) {
   return ((data.choices && data.choices[0]?.message?.content) || '').trim();
 }
 
+// --- Ollama provider (free, local; no API key) ---
+async function ollamaComplete(systemText, messages) {
+  const url = `${config.ollamaUrl}/api/chat`;
+  const body = {
+    model: config.ollamaModel,
+    stream: false,
+    format: 'json',
+    options: { temperature: 0.4, num_predict: 3200 },
+    messages: [{ role: 'system', content: systemText }, ...messages],
+  };
+  let res;
+  try {
+    res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+  } catch (e) {
+    const err = new Error(
+      `Cannot reach Ollama at ${config.ollamaUrl}. Install it from ollama.com, ` +
+        `run "ollama pull ${config.ollamaModel}", make sure "ollama serve" is ` +
+        `running, then retry. (${e.cause ? e.cause.code || e.cause.message : e.message})`
+    );
+    err.statusCode = 503;
+    throw err;
+  }
+  if (!res.ok) {
+    const txt = await res.text().catch(() => '');
+    if (res.status === 404) {
+      const err = new Error(
+        `Ollama has no model "${config.ollamaModel}". Run ` +
+          `"ollama pull ${config.ollamaModel}" first.`
+      );
+      err.statusCode = 503;
+      throw err;
+    }
+    const e = new Error(`Ollama HTTP ${res.status}: ${txt.slice(0, 300)}`);
+    e.status = res.status;
+    throw e;
+  }
+  const data = await res.json();
+  return ((data.message && data.message.content) || '').trim();
+}
+
 function getProvider() {
+  if (config.llmProvider === 'ollama') return ollamaComplete;
   if (!hasApiKey()) throw missingKeyError();
   return config.llmProvider === 'anthropic' ? anthropicComplete : groqComplete;
 }

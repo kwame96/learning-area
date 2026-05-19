@@ -23,7 +23,11 @@ Open http://localhost:3000
 
 `.env` has `LLM_PROVIDER`:
 
-- **Free, start here:** `LLM_PROVIDER=groq` and set `GROQ_API_KEY`
+- **Free, fully local (no key, no internet):** `LLM_PROVIDER=ollama`.
+  Install [Ollama](https://ollama.com), run `ollama pull llama3.2:3b`.
+  Best when you have no API budget; slower on CPU-only machines — use a
+  small model (`llama3.2:3b`) and expect ~1–3 min per job.
+- **Free via API:** `LLM_PROVIDER=groq` and set `GROQ_API_KEY`
   (free key at https://console.groq.com/keys).
 - **Switch to Claude later (fast):** change the single line to
   `LLM_PROVIDER=anthropic`, ensure `ANTHROPIC_API_KEY` is set, restart.

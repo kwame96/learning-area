@@ -7,7 +7,8 @@ const ROOT = path.join(__dirname, '..');
 
 const config = {
   port: Number(process.env.PORT) || 3000,
-  // Active LLM provider: 'groq' (free) or 'anthropic' (Claude, paid).
+  // Active LLM provider: 'ollama' (free, local), 'groq' (free, API),
+  // or 'anthropic' (Claude, paid).
   llmProvider: (process.env.LLM_PROVIDER || 'groq').trim().toLowerCase(),
 
   anthropicApiKey: process.env.ANTHROPIC_API_KEY || '',
@@ -15,6 +16,9 @@ const config = {
 
   groqApiKey: process.env.GROQ_API_KEY || '',
   groqModel: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
+
+  ollamaUrl: (process.env.OLLAMA_URL || 'http://localhost:11434').replace(/\/$/, ''),
+  ollamaModel: process.env.OLLAMA_MODEL || 'llama3.2:3b',
 
   paths: {
     root: ROOT,
@@ -41,8 +45,10 @@ function clean(v) {
   return (v || '').trim();
 }
 
-// Is the active provider's key usable?
+// Is the active provider ready? Ollama is local and needs no key
+// (reachability is checked at call time instead).
 function hasApiKey() {
+  if (config.llmProvider === 'ollama') return true;
   if (config.llmProvider === 'anthropic') {
     const k = clean(config.anthropicApiKey);
     return Boolean(k) && !PLACEHOLDERS.has(k);
@@ -52,9 +58,9 @@ function hasApiKey() {
 }
 
 function activeModel() {
-  return config.llmProvider === 'anthropic'
-    ? config.claudeModel
-    : config.groqModel;
+  if (config.llmProvider === 'ollama') return config.ollamaModel;
+  if (config.llmProvider === 'anthropic') return config.claudeModel;
+  return config.groqModel;
 }
 
 module.exports = { config, hasApiKey, activeModel };

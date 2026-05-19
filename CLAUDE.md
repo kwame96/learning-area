@@ -23,9 +23,9 @@ Two distinct things live here:
   `multer` (2.x), `pdfjs-dist` (PDF text), `mammoth` (DOCX), `pdfkit`
   (PDF export), `dotenv`.
 - LLM access is provider-pluggable via `src/services/llm.js` and
-  `LLM_PROVIDER` (`groq` free via REST, or `anthropic` Claude via SDK).
-  Switching is env-only — no code changes. Anthropic path keeps prompt
-  caching; Groq path uses the OpenAI-compatible REST endpoint.
+  `LLM_PROVIDER`: `ollama` (free, local, no key — `/api/chat`),
+  `groq` (free, OpenAI-compatible REST), or `anthropic` (Claude via SDK,
+  keeps prompt caching). Switching is env-only — no code changes.
 - Layout: `routes/` (HTTP) → `repositories/` (DB) and `services/`
   (resume parsing, Claude, PDF, job sources). `lib/` holds validation and
   prompts. Distinct dark-editorial UI in `public/` (vanilla, no build step).
