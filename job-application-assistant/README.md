@@ -1,8 +1,8 @@
 # Job Application Assistant
 
 A local tool that tailors **your genuine resume** to many job descriptions
-using the Claude API, scores ATS keyword match, exports PDFs, and tracks
-application status.
+using an LLM, scores ATS keyword match, exports PDFs, and tracks
+application status. Works with **Groq (free)** or **Claude (paid)**.
 
 **What it does NOT do:** it does not auto-submit applications (that violates
 job-board terms and gets accounts banned) and it does not invent or exaggerate
@@ -13,11 +13,24 @@ experience. You review every tailored document and submit it yourself.
 ```bash
 cd job-application-assistant
 npm install
-cp .env.example .env       # then put your real ANTHROPIC_API_KEY in .env
+cp .env.example .env
 npm start
 ```
 
 Open http://localhost:3000
+
+### Choosing the LLM provider
+
+`.env` has `LLM_PROVIDER`:
+
+- **Free, start here:** `LLM_PROVIDER=groq` and set `GROQ_API_KEY`
+  (free key at https://console.groq.com/keys).
+- **Switch to Claude later (fast):** change the single line to
+  `LLM_PROVIDER=anthropic`, ensure `ANTHROPIC_API_KEY` is set, restart.
+  No code changes; your saved jobs/profile are untouched.
+
+Groq is lower quality than Claude for this task but free and good enough to
+draft and test the full workflow.
 
 ## Workflow
 

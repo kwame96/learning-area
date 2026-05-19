@@ -22,6 +22,10 @@ Two distinct things live here:
 - `better-sqlite3` (local file DB in `data/`), `@anthropic-ai/sdk`,
   `multer` (2.x), `pdfjs-dist` (PDF text), `mammoth` (DOCX), `pdfkit`
   (PDF export), `dotenv`.
+- LLM access is provider-pluggable via `src/services/llm.js` and
+  `LLM_PROVIDER` (`groq` free via REST, or `anthropic` Claude via SDK).
+  Switching is env-only — no code changes. Anthropic path keeps prompt
+  caching; Groq path uses the OpenAI-compatible REST endpoint.
 - Layout: `routes/` (HTTP) → `repositories/` (DB) and `services/`
   (resume parsing, Claude, PDF, job sources). `lib/` holds validation and
   prompts. Distinct dark-editorial UI in `public/` (vanilla, no build step).
@@ -35,7 +39,7 @@ Two distinct things live here:
 ```bash
 cd job-application-assistant
 npm install
-cp .env.example .env        # add real ANTHROPIC_API_KEY
+cp .env.example .env        # set LLM_PROVIDER + that provider's key
 npm start                   # http://localhost:3000
 ```
 
@@ -44,9 +48,9 @@ No automated test suite — verify via the browser checklist in
 
 ## Conventions / hard rules
 
-- **API key is server-side only.** Read `ANTHROPIC_API_KEY` from
-  `process.env`. Never hardcode it, never send it to the frontend, never
-  commit `.env`.
+- **API keys are server-side only.** Read `GROQ_API_KEY` /
+  `ANTHROPIC_API_KEY` from `process.env`. Never hardcode them, never send
+  them to the frontend, never commit `.env`.
 - **No fabrication.** Tailoring prompts (`src/lib/prompts.js`) must keep the
   rule that Claude may only reorder/rephrase/emphasize genuine content from
   the master profile/resume, never invent experience, skills, dates, or

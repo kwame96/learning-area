@@ -3,7 +3,7 @@
 const express = require('express');
 const jobRepo = require('../repositories/jobRepo');
 const profileRepo = require('../repositories/profileRepo');
-const { tailor } = require('../services/claudeService');
+const { tailor } = require('../services/llm');
 const { ValidationError } = require('../lib/validation');
 
 const router = express.Router();

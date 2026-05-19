@@ -23,8 +23,8 @@ document.querySelectorAll('.nav-btn').forEach((b) =>
   try {
     const h = await api.get('/api/health');
     document.getElementById('health').textContent = h.apiKeyConfigured
-      ? `● claude ${h.model} — key configured`
-      : '● no ANTHROPIC_API_KEY set — generation disabled until added to .env';
+      ? `● ${h.provider} · ${h.model} — key configured`
+      : `● ${h.provider}: no API key set — generation disabled until added to .env`;
   } catch {
     document.getElementById('health').textContent = '● server unreachable';
   }

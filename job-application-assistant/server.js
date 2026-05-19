@@ -1,7 +1,7 @@
 'use strict';
 
 const express = require('express');
-const { config, hasApiKey } = require('./src/config');
+const { config, hasApiKey, activeModel } = require('./src/config');
 const { init } = require('./src/db');
 
 init();
@@ -12,7 +12,12 @@ app.use(express.urlencoded({ extended: false, limit: config.limits.jsonBytes }))
 app.use(express.static(config.paths.public));
 
 app.get('/api/health', (req, res) => {
-  res.json({ ok: true, apiKeyConfigured: hasApiKey(), model: config.claudeModel });
+  res.json({
+    ok: true,
+    provider: config.llmProvider,
+    model: activeModel(),
+    apiKeyConfigured: hasApiKey(),
+  });
 });
 
 app.use('/api/profile', require('./src/routes/profile.routes'));
@@ -41,9 +46,11 @@ app.use((err, req, res, next) => {
 
 app.listen(config.port, () => {
   console.log(`Job Application Assistant running at http://localhost:${config.port}`);
+  console.log(`LLM provider: ${config.llmProvider} (model ${activeModel()})`);
   if (!hasApiKey()) {
+    const v = config.llmProvider === 'anthropic' ? 'ANTHROPIC_API_KEY' : 'GROQ_API_KEY';
     console.warn(
-      'WARNING: ANTHROPIC_API_KEY not set — tailoring is disabled until you add it to .env'
+      `WARNING: ${v} not set — generation disabled until you add it to .env`
     );
   }
 });
