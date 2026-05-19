@@ -5,7 +5,8 @@
   "type": "commonjs",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node launch.js",
+    "start:server": "node server.js",
     "dev": "node --watch server.js"
   },
   "engines": {

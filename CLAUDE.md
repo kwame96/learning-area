@@ -23,9 +23,11 @@ Two distinct things live here:
   `multer` (2.x), `pdfjs-dist` (PDF text), `mammoth` (DOCX), `pdfkit`
   (PDF export), `dotenv`.
 - LLM access is provider-pluggable via `src/services/llm.js` and
-  `LLM_PROVIDER`: `ollama` (free, local, no key — `/api/chat`),
+  `LLM_PROVIDER`: `offline` (rule-based, no AI/key/network —
+  `services/offlineTailor.js`), `ollama` (free, local, `/api/chat`),
   `groq` (free, OpenAI-compatible REST), or `anthropic` (Claude via SDK,
-  keeps prompt caching). Switching is env-only — no code changes.
+  keeps prompt caching). `npm start` runs `launch.js`, an interactive
+  pre-start picker (bypass: `npm start -- <provider> [model]`).
 - Layout: `routes/` (HTTP) → `repositories/` (DB) and `services/`
   (resume parsing, Claude, PDF, job sources). `lib/` holds validation and
   prompts. Distinct dark-editorial UI in `public/` (vanilla, no build step).

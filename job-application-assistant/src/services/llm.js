@@ -177,6 +177,9 @@ function getProvider() {
 }
 
 async function tailor({ masterProfile, resumeText, job }) {
+  if (config.llmProvider === 'offline') {
+    return require('./offlineTailor').tailor({ masterProfile, resumeText, job });
+  }
   const complete = getProvider();
   const model = activeModel();
   const systemText = buildCachedSystemText(masterProfile, resumeText);

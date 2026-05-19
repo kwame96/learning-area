@@ -48,7 +48,8 @@ function clean(v) {
 // Is the active provider ready? Ollama is local and needs no key
 // (reachability is checked at call time instead).
 function hasApiKey() {
-  if (config.llmProvider === 'ollama') return true;
+  if (config.llmProvider === 'offline' || config.llmProvider === 'ollama')
+    return true;
   if (config.llmProvider === 'anthropic') {
     const k = clean(config.anthropicApiKey);
     return Boolean(k) && !PLACEHOLDERS.has(k);
@@ -58,6 +59,7 @@ function hasApiKey() {
 }
 
 function activeModel() {
+  if (config.llmProvider === 'offline') return 'offline (rule-based)';
   if (config.llmProvider === 'ollama') return config.ollamaModel;
   if (config.llmProvider === 'anthropic') return config.claudeModel;
   return config.groqModel;

@@ -21,8 +21,13 @@ Open http://localhost:3000
 
 ### Choosing the LLM provider
 
-`.env` has `LLM_PROVIDER`:
+`npm start` shows a **picker** so you can switch provider/model each run
+without editing `.env`. Skip it with `npm start -- groq` or
+`npm start -- ollama llama3.1:8b`. Providers:
 
+- **Zero-cost, zero-setup:** `offline` — rule-based, no AI, no key, no
+  internet. Only reorders/surfaces your real content and scores keyword
+  overlap. Lowest quality; works anywhere instantly.
 - **Free, fully local (no key, no internet):** `LLM_PROVIDER=ollama`.
   Install [Ollama](https://ollama.com), run `ollama pull llama3.2:3b`.
   Best when you have no API budget; slower on CPU-only machines — use a
